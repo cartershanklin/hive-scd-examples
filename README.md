@@ -1,6 +1,6 @@
 # Managing Slowly Changing Dimensions (SCDs) with Apache Hive
 
-This project provides sample datasets and scripts that demonstrate how to manage Slowly Changing Dimensions (SCDs) with Apache Hive.
+This project provides sample datasets and scripts that demonstrate how to manage Slowly Changing Dimensions (SCDs) with Apache Hive's ACID MERGE capabilities. Using ACID MERGE allows all updates to be applied atomically, ensure readers see all updates or no updates, and handles failure scenarios, rather than requiring application developers to build these things themselves.
 
 Also included is data that simulates a full data dump from a source system, followed by another data dump taken later.
 
