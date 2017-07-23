@@ -14,8 +14,8 @@ These examples cover [Type 1](hive_type1_scd.sql), [Type 2](hive_type2_scd.sql) 
 
 ## Requirements
 
-* Hortonworks Data Platform (HDP) 2.6 or later
-* OR Apache Hive 2.2 or later
+* [Hortonworks Data Platform](https://hortonworks.com/downloads/) (HDP) 2.6 or later
+* OR [Apache Hive](https://hive.apache.org/) 2.2 or later
 
 ## Instructions
 
