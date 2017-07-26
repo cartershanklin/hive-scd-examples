@@ -44,4 +44,4 @@ select count(*) from contacts_target where last_email <> email or last_state <> 
 select count(*) from contacts_target;
 
 -- View a changed record.
-select * from contacts_target where id = 48;
+select * from contacts_target where id = 12;
