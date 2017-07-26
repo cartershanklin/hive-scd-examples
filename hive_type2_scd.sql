@@ -38,7 +38,7 @@ using (
   from
     contacts_update_stage join contacts_target on contacts_update_stage.id = contacts_target.id
   where
-    contacts_update_stage.email <> contacts_target.email or contacts_update_stage.state <> contacts_target.state
+    ( contacts_update_stage.email <> contacts_target.email or contacts_update_stage.state <> contacts_target.state )
     and contacts_target.valid_to is null
 ) sub
 on sub.join_key = contacts_target.id
