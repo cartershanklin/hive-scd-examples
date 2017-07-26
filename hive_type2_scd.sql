@@ -21,35 +21,32 @@ create external table contacts_update_stage(id int, name string, email string, s
   row format delimited fields terminated by ',' stored as textfile
   location '/tmp/merge_data/update_stage';
 
--- This helper table allows us to generate an additional row for matched keys, so we can insert and
--- update in the same pass. -1 cannot appear as a customer ID.
-create table scd_types (
-  change_type int,
-  new_record_flag int
-);
-insert into scd_types values (1, null), (2, 0), (2, null);
-
-merge into
-  contacts_target
+-- Perform the Type 2 SCD.
+merge into contacts_target
 using (
-  select 
-    sub1.*,
-    case when scd_types.new_record_flag is not null then sub1.join_id else null end as join_key
-  from (
-    select stage.*,
-    case when contacts_target.id is null then 1 else 2 end as change_type,
-    contacts_target.id as join_id
-    from contacts_update_stage stage
-    left join contacts_target on stage.id = contacts_target.id
-    where
-      ( stage.email <> contacts_target.email or stage.state <> contacts_target.state )  -- Record change detection
-      or contacts_target.id is null                                                     -- For net-new records
-      and contacts_target.valid_to is null                                              -- Only update the most recent contact
-  ) sub1 join scd_types on sub1.change_type = scd_types.change_type
+  -- The base staging data.
+  select
+    contacts_update_stage.id as join_key,
+    contacts_update_stage.* from contacts_update_stage
+
+  union all
+
+  -- Generate an extra row for changed records.
+  -- The null join_key means it will be inserted.
+  select
+    null, contacts_update_stage.*
+  from
+    contacts_update_stage join contacts_target on contacts_update_stage.id = contacts_target.id
+  where
+    contacts_update_stage.email <> contacts_target.email or contacts_update_stage.state <> contacts_target.state
+    and contacts_target.valid_to is null
 ) sub
 on sub.join_key = contacts_target.id
-when matched and valid_to is null then update set valid_to = current_date()
-when not matched then insert values (sub.id, sub.name, sub.email, sub.state, current_date(), null);
+when matched
+  and sub.email <> contacts_target.email or sub.state <> contacts_target.state
+  then update set valid_to = current_date()
+when not matched
+  then insert values (sub.id, sub.name, sub.email, sub.state, current_date(), null);
 
 -- Confirm 92 records are expired.
 select count(*) from contacts_target where valid_to is not null;
@@ -58,4 +55,4 @@ select count(*) from contacts_target where valid_to is not null;
 select count(*) from contacts_target;
 
 -- View one of the changed records.
-select * from contacts_target where id = 48;
+select * from contacts_target where id = 12;
