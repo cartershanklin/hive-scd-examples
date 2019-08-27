@@ -1,5 +1,12 @@
 -- This example demonstrates Type 1 Slowly Changing Dimensions in Hive.
 -- Be sure to stage data in before starting (load_data.sh)
+
+SET hive.txn.manager=org.apache.hadoop.hive.ql.lockmgr.DbTxnManager;
+SET hive.support.concurrency=true;
+SET hive.enforce.bucketing=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+set hive.auto.convert.join = false;
+
 drop database if exists type1_test cascade;
 create database type1_test;
 use type1_test;
